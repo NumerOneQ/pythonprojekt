@@ -15,7 +15,7 @@ class FileRenamerApp:
         self.root = root
         self.root.title("Filnamnsändrare med Taggning")
         self.style = ttk.Style("darkly")
-
+        self.analysis_thread = None # Håller reda på den aktiva analystråden
         self.root.minsize(800, 600)
 
         self.folder = ""
@@ -110,8 +110,30 @@ class FileRenamerApp:
     def upload_image_to_imgbb(self, file_path):
         return api_integration.upload_image_to_imgbb(file_path, self.imgbb_api_key)
 
+    #def analyze_image_with_google_lens(self):
+    #    api_integration.analyze_image_with_google_lens(self)
+
     def analyze_image_with_google_lens(self):
-        api_integration.analyze_image_with_google_lens(self)
+        selected_indices = self.file_listbox.curselection()
+        if len(selected_indices) != 1:
+            messagebox.showwarning("Varning", "Välj exakt en fil för analys.")
+            return
+
+        # Kolla om en analys redan pågår
+        if self.analysis_thread and self.analysis_thread.is_alive():
+            messagebox.showwarning("Varning", "En bildanalys pågår redan.")
+            return
+
+        self.analyze_btn.config(state="disabled")
+        self.show_progress()
+
+        # Starta och spara trådobjektet
+        self.analysis_thread = threading.Thread(target=api_integration._analyze_image_thread, args=(self, selected_indices))
+        # Gör tråden till en daemon-tråd (valfritt men ofta bra för bakgrundsuppgifter)
+        # En daemon-tråd avslutas automatiskt när huvudprogrammet avslutas,
+        # vilket KAN hjälpa med detta fel, men det är bättre att hantera det explicit.
+        self.analysis_thread.daemon = True
+        self.analysis_thread.start()
 
     def _analyze_image_thread(self, selected_indices):
         api_integration._analyze_image_thread(self, selected_indices)
@@ -534,8 +556,20 @@ class FileRenamerApp:
         self.update_preview(None)
 
     def on_close(self):
+        # Kolla om analystråden fortfarande lever
+        thread_was_alive = False
+        if self.analysis_thread and self.analysis_thread.is_alive():
+            thread_was_alive = True
+            # Vi gör INGET join här nu, förlitar oss på daemon=True
+            # Men vi noterar att den levde.
+
         self.save_settings()
         self.root.destroy()
+        if thread_was_alive:
+             print("Root window destroyed while analysis thread was potentially still running (as daemon).")
+
+        #self.save_settings()
+        #self.root.destroy()
 
     def save_settings(self):
         config.save_settings(self)

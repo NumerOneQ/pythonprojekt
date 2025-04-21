@@ -87,11 +87,20 @@ def _analyze_image_thread(app, selected_indices):
         tags = [tag for tag in tags if len(tag) > 2][:len(app.text_entries)]
 
         app.root.after(0, lambda: _update_tags(app, tags))
+    except requests.exceptions.RequestException as e:
+        print(f"SerpApi Network Error: {e}")
+        app.root.after(0, lambda err=str(e): messagebox.showerror("SerpApi Fel", f"Nätverksfel vid kommunikation med SerpApi: {err}"))
     except Exception as e:
-        app.root.after(0, lambda: messagebox.showerror("Fel", f"Kunde inte analysera bilden med Google Lens: {e}"))
+        import traceback
+        print(f"Error in _analyze_image_thread: {type(e).__name__}: {e}")
+        traceback.print_exc()
+        app.root.after(0, lambda err=str(e), type_err=type(e).__name__: messagebox.showerror("Analysfel", f"Kunde inte analysera bilden ({type_err}): {err}"))
+        #app.root.after(0, lambda: messagebox.showerror("Fel", f"Kunde inte analysera bilden med Google Lens: {e}"))
     finally:
-        app.root.after(0, lambda: app.hide_progress())
-        app.root.after(0, lambda: app.analyze_btn.config(state="normal"))
+        app.root.after(0, lambda a=app: a.hide_progress())
+        app.root.after(0, lambda a=app: a.analyze_btn.config(state="normal"))
+        # Schemalägg nollställning av trådreferensen via after
+        #app.root.after(0, lambda a=app: setattr(a, 'analysis_thread', None))
 
 def _update_tags(app, tags):
     try:
