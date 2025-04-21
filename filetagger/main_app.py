@@ -53,16 +53,32 @@ class FileRenamerApp:
 
         self.load_settings()
 
+        # ----- UPPdaterade Felkontroller -----
         if not self.imgbb_api_key:
-            messagebox.showerror("Fel", "ImgBB API-nyckel saknas i settings.json. Ange en giltig nyckel.")
+            messagebox.showerror(
+                "API-nyckel saknas",
+                "ImgBB API-nyckel (IMGBB_API_KEY) hittades inte.\n\n"
+                "Se till att den finns i en .env-fil i projektets rotkatalog, "
+                "eller som en miljövariabel."
+            )
             self.root.destroy()
             return
         if not self.serpapi_api_key:
-            messagebox.showerror("Fel", "SerpApi API-nyckel saknas i settings.json. Ange en giltig nyckel.")
+            messagebox.showerror(
+                "API-nyckel saknas",
+                "SerpApi API-nyckel (SERPAPI_API_KEY) hittades inte.\n\n"
+                "Se till att den finns i en .env-fil i projektets rotkatalog, "
+                "eller som en miljövariabel."
+            )
             self.root.destroy()
             return
         if not self.google_maps_api_key:
-            messagebox.showerror("Fel", "Google Maps API-nyckel saknas i settings.json. Ange en giltig nyckel.")
+            messagebox.showerror(
+                "API-nyckel saknas",
+                "Google Maps API-nyckel (GOOGLE_MAPS_API_KEY) hittades inte.\n\n"
+                "Se till att den finns i en .env-fil i projektets rotkatalog, "
+                "eller som en miljövariabel."
+            )
             self.root.destroy()
             return
         if not self.external_viewer_path:
@@ -526,6 +542,8 @@ class FileRenamerApp:
 
     def load_settings(self):
         settings = config.load_settings()
+        
+        # Inställningar från JSON
         self.folder = settings.get("last_folder", "")
         loaded_shortcut_keys = settings.get("shortcut_keys", list(config.DEFAULT_SHORTCUT_KEYS))
         self.shortcut_keys = loaded_shortcut_keys + [""] * (len(config.DEFAULT_SHORTCUT_KEYS) - len(loaded_shortcut_keys))

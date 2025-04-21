@@ -3,6 +3,8 @@ import requests
 from tkinter import messagebox
 from serpapi import GoogleSearch
 import threading
+import os # <--- DENNA RAD MÅSTE FINNAS!
+import tkinter as tk # <-- LÄGG TILL DENNA IMPORT
 
 def upload_image_to_imgbb(file_path, imgbb_api_key):
     try:
@@ -92,13 +94,20 @@ def _analyze_image_thread(app, selected_indices):
         app.root.after(0, lambda: app.analyze_btn.config(state="normal"))
 
 def _update_tags(app, tags):
-    for i, tag in enumerate(tags):
-        if i < len(app.text_entries):
-            app.text_entries[i].delete(0, tk.END)
-            app.text_entries[i].insert(0, tag)
-            app.tags[i] = tag
-    app.save_settings()
-    messagebox.showinfo("Klart", "Taggar har genererats baserat på bildanalysen!")
+    print(f"--- _update_tags called with: {tags} ---") # Debug
+    try:
+        for i, tag in enumerate(tags):
+            if i < len(app.text_entries):
+                # Nu kommer tk.END att vara definierad
+                app.text_entries[i].delete(0, tk.END)
+                app.text_entries[i].insert(0, tag)
+                if i < len(app.tags):
+                    app.tags[i] = tag
+        app.save_settings() # Anropet till save_settings var korrekt här
+        messagebox.showinfo("Klart", f"Taggar har genererats och sparats:\n{', '.join(tags)}")
+    except Exception as e:
+        # ... (felhantering) ...
+        messagebox.showerror("Fel vid uppdatering", f"Kunde inte uppdatera taggfälten: {e}")
 
 def get_gps_coordinates_from_location(location, google_maps_api_key):
     url = "https://maps.googleapis.com/maps/api/geocode/json"
