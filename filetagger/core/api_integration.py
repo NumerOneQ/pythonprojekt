@@ -94,7 +94,6 @@ def _analyze_image_thread(app, selected_indices):
         app.root.after(0, lambda: app.analyze_btn.config(state="normal"))
 
 def _update_tags(app, tags):
-    print(f"--- _update_tags called with: {tags} ---") # Debug
     try:
         for i, tag in enumerate(tags):
             if i < len(app.text_entries):

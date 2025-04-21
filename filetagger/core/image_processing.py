@@ -95,7 +95,7 @@ def update_metadata(app, file_path):
                 except Exception as e:
                     print(f"Fel vid läsning av EXIF-data: {e}")
             else:
-                print("Ingen EXIF-data tillgänglig för denna fil.")
+                pass
 
         mtime = os.path.getmtime(file_path)
         last_modified = datetime.fromtimestamp(mtime).strftime('%Y:%m:%d %H:%M:%S')

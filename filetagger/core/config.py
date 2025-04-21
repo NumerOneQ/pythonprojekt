@@ -9,20 +9,13 @@ from dotenv import load_dotenv, find_dotenv
 # find_dotenv() letar efter .env uppåt från denna fils katalog
 dotenv_path = find_dotenv(raise_error_if_not_found=False) # raise_error=False gör att det inte kraschar om den inte hittas
 
-# Lägg till debug-utskrift för att se var den letar/hittar
-print(f"--- Debug config.py ---")
-print(f"Current Working Directory (os.getcwd()): {os.getcwd()}")
-print(f"Config file location (__file__): {__file__}")
-print(f"Path found by find_dotenv(): {dotenv_path}")
 
 if dotenv_path:
     # Ladda från den specifika sökvägen som hittades
     loaded = load_dotenv(dotenv_path=dotenv_path, override=True) # override=True kan hjälpa om variabler redan är satta i miljön
-    print(f".env file loaded from {dotenv_path}: {loaded}")
 else:
     print("Warning: .env file not found by find_dotenv(). Will rely on existing environment variables if any.")
     # Programmet fortsätter, men os.getenv() kommer troligen returnera "" för nycklarna
-print(f"--- End Debug config.py ---")
 
 
 SETTINGS_FILE = "resources/config/settings.json" # Ny sökväg för inställningar
@@ -80,13 +73,6 @@ def load_settings():
     settings["imgbb_api_key"] = os.getenv("IMGBB_API_KEY", "")
     settings["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY", "")
     settings["google_maps_api_key"] = os.getenv("GOOGLE_MAPS_API_KEY", "")
-
-    # Lägg till ytterligare debug här för att se VAD os.getenv returnerar
-    print(f"--- Debug load_settings ---")
-    print(f"Value for IMGBB_API_KEY via os.getenv: '{settings['imgbb_api_key']}'")
-    print(f"Value for SERPAPI_API_KEY via os.getenv: '{settings['serpapi_api_key']}'")
-    print(f"Value for GOOGLE_MAPS_API_KEY via os.getenv: '{settings['google_maps_api_key']}'")
-    print(f"--- End Debug load_settings ---")
 
     # Säkerställ att listlängderna stämmer överens efter laddning
     num_shortcuts = len(settings["shortcut_keys"])
